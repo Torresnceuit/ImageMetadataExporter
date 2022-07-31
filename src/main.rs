@@ -1,6 +1,8 @@
-use std::path::{Path, PathBuf};
-
 use clap::{Arg, App};
+
+use func::extract_exif_metadata_from_image;
+
+mod func;
 
 fn main() -> Result<(), String> {
     let matches = App::new("Image Metadata Exporter")
@@ -12,14 +14,18 @@ fn main() -> Result<(), String> {
             .long("file")
             .short('f')
             .help("Path to image")
+            .max_values(3) // Allow up to 3 files passed through command line argument
             .takes_value(true)])
         .get_matches();
 
-    let filePath = matches.value_of("file").unwrap();
-    let fileDirectory = Path::new(filePath).parent().unwrap();
+    let file_arg_vec = matches
+        .get_many::<String>("file")
+        .unwrap()
+        .collect::<Vec<_>>();
+    dbg!(&file_arg_vec);
 
-    println!("{}", filePath);
-    println!("{}", fileDirectory.display());
-
+    for file_arg in file_arg_vec.into_iter() {
+        extract_exif_metadata_from_image(file_arg);
+    }
     Ok(())
 }
