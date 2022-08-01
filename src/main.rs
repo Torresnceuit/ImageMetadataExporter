@@ -1,8 +1,10 @@
+extern crate core;
+
 use clap::{Arg, App};
 
-use func::extract_exif_metadata_from_image;
+use utils::extract_exif_metadata_from_image;
 
-mod func;
+mod utils;
 
 fn main() -> Result<(), String> {
     let matches = App::new("Image Metadata Exporter")
@@ -25,7 +27,7 @@ fn main() -> Result<(), String> {
     dbg!(&file_arg_vec);
 
     for file_arg in file_arg_vec.into_iter() {
-        extract_exif_metadata_from_image(file_arg);
+        let _ = extract_exif_metadata_from_image(file_arg);
     }
     Ok(())
 }
