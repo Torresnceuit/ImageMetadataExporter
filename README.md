@@ -28,8 +28,11 @@ cd ImageMetadataExporter
 cargo build
 ```
 
-### Run tests (TO DO)
+### Run tests
 
+```
+cargo test
+```
 
 ### Run Executable ImageMetadataExporter
 In target/debug folder, execute the application
