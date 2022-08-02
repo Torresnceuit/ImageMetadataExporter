@@ -3,13 +3,14 @@ use std::io::{BufWriter, Write};
 use std::path::{Path};
 use exif::{Exif, Tag, In};
 use serde_json::Value;
+use crate::err::Error;
 
-pub fn extract_exif_metadata_from_image(file_arg: &str) -> Result<(), String>
+pub fn extract_exif_metadata_from_image(file_arg: &str) -> Result<(), Error>
 {
     println!("INFO:  File processing: {}", file_arg);
     if file_arg.is_empty() {
         eprintln!("ERROR: Empty name\n");
-        return Err("Invalid input".to_string());
+        return Err(Error::InvalidInput);
     }
 
     let file_path = Path::new(file_arg);
@@ -19,7 +20,7 @@ pub fn extract_exif_metadata_from_image(file_arg: &str) -> Result<(), String>
 
     if file.is_err() {
         eprintln!("WARN:  Can not open file: {}\n", file_name_with_extension);
-        return Err("Can not open file".to_string());
+        return Err(Error::IOError);
     }
     let file = file.unwrap();
 
@@ -29,7 +30,7 @@ pub fn extract_exif_metadata_from_image(file_arg: &str) -> Result<(), String>
 
     if exif.is_err() {
         eprintln!("ERROR: Can not read exif from image: {}\n", file_name_with_extension);
-        return Err("Can not read exif metadata.".to_string());
+        return Err(Error::ExifMetadataError);
     }
 
     let exif = exif.unwrap();
@@ -52,7 +53,7 @@ pub fn extract_exif_metadata_from_image(file_arg: &str) -> Result<(), String>
 
     let status = export_to_json(directory_path, file_name_raw, json);
     if status.is_err() {
-        return Err(status.unwrap_err());
+        return Err(Error::ExportJsonError);
     }
 
     println!("OK: File succeed {}\n", file_name_with_extension);
@@ -137,15 +138,14 @@ pub fn parsing_metadata(exif: Exif) -> Value {
 
 #[cfg(test)]
 mod tests {
-    use std::{io::BufReader, path::Path};
-    use serde_json::Value;
+    use crate::err::Error;
     use crate::extract_exif_metadata_from_image;
 
     #[test]
     fn test_extract_exif_metadata_from_image_empty_input() {
         let file_arg = "";
         let result = extract_exif_metadata_from_image(file_arg);
-        assert_eq!(result, Err("Invalid input".to_string()));
+        assert_eq!(result, Err(Error::InvalidInput));
     }
 
     #[test]
@@ -159,6 +159,6 @@ mod tests {
     fn test_extract_exif_metadata_from_image_valid_file() {
         let file_arg = "images/none.jpg";
         let result = extract_exif_metadata_from_image(file_arg);
-        assert_eq!(result, Err("Can not open file".to_string()));
+        assert_eq!(result, Err(Error::IOError));
     }
 }

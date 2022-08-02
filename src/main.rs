@@ -5,6 +5,7 @@ use clap::{Arg, App};
 use utils::extract_exif_metadata_from_image;
 
 mod utils;
+mod err;
 
 fn main() -> Result<(), String> {
     let matches = App::new("Image Metadata Exporter")
